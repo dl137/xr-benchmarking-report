@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Slate Gray & Amber -->
-    <!-- Application Structure Plan: A single-page application with a top navigation bar to switch between three main views: 'Overview & Comparison', 'University Profiles', and 'Key Trends'. This dashboard-like structure allows users to first get a high-level comparative understanding via charts, then dive into detailed information for each university, and finally synthesize the evolution of the field. The flow is designed to guide the user from broad comparison to specific details and then to overarching insights, which is a more intuitive way to consume a dense benchmarking report than a linear document. -->
+    <!-- Application Structure Plan: A single-page application with a top navigation bar to switch between three main views: 'University Profiles', 'Overview & Comparison', and 'Key Trends'. This dashboard-like structure allows users to first dive into detailed information for each university, then get a high-level comparative understanding via charts, and finally synthesize the evolution of the field. The flow is designed to guide the user from specific details to broad comparison and then to overarching insights, which is a more intuitive way to consume a dense benchmarking report than a linear document. -->
     <!-- Visualization & Content Choices: 
         - Report Info: University XR Commitment/Investment Rating. Goal: Compare institutions directly. Viz: Interactive Bar Chart (Chart.js). Interaction: Hovering over bars shows the exact rating. Justification: A bar chart is the clearest way to compare a single quantitative metric across multiple entities. Library: Chart.js.
         - Report Info: Evolution of XR from 2020 to 2025. Goal: Illustrate the shift in focus and maturity. Viz: HTML/CSS based visual timeline. Interaction: Clicking on trend titles reveals descriptive text. Justification: A timeline is a natural and effective way to represent change over time, making the report's trend analysis more dynamic and engaging than a simple text list. Method: HTML/CSS with JS for interactivity.
@@ -99,13 +99,22 @@
         </header>
 
         <nav class="flex justify-center bg-slate-200 rounded-lg p-2 mb-8 sticky top-2 z-10 shadow-sm">
-            <button id="nav-overview" class="nav-button active px-4 py-2 rounded-md text-sm sm:text-base">Overview & Comparison</button>
-            <button id="nav-profiles" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">University Profiles</button>
+            <button id="nav-profiles" class="nav-button active px-4 py-2 rounded-md text-sm sm:text-base">University Profiles</button>
+            <button id="nav-overview" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">Overview & Comparison</button>
             <button id="nav-trends" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">Key Trends</button>
         </nav>
 
         <main>
-            <section id="overview" class="space-y-12">
+            <section id="profiles" class="space-y-12">
+                 <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-800">Detailed University Profiles</h2>
+                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also get AI-powered suggestions for future research areas.</p>
+                </div>
+                <div id="university-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </section>
+
+            <section id="overview" class="hidden space-y-12">
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h2 class="text-2xl font-semibold text-center mb-4 text-slate-800">XR Commitment/Investment Rating (2025)</h2>
                     <p class="text-center text-slate-600 mb-6 max-w-3xl mx-auto">This chart provides a comparative overview of the strategic commitment and investment each university has made in Extended Reality. The rating, on a scale of 1 to 5, synthesizes factors like funding, dedicated facilities, program depth, and industry integration. Use this to quickly identify leaders and emerging players in the academic XR space.</p>
@@ -119,15 +128,6 @@
                     <p class="text-slate-600 mb-6 max-w-3xl mx-auto">Leverage AI to get a strategic recommendation for NYU's future in XR, based on the comprehensive benchmarking data and key industry trends.</p>
                     <button id="nyu-strategic-recommendation-btn" class="px-6 py-3 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-lg font-medium">✨ Get NYU Strategic Recommendation</button>
                     <div id="nyu-strategic-recommendation-output" class="llm-output mt-4 hidden text-left"></div>
-                </div>
-            </section>
-
-            <section id="profiles" class="hidden">
-                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-slate-800">Detailed University Profiles</h2>
-                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also get AI-powered suggestions for future research areas.</p>
-                </div>
-                <div id="university-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 </div>
             </section>
 
@@ -245,10 +245,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             const navButtons = document.querySelectorAll('.nav-button');
             const sections = {
-                overview: document.getElementById('overview'),
                 profiles: document.getElementById('profiles'),
+                overview: document.getElementById('overview'),
                 trends: document.getElementById('trends')
             };
+
+            // Set initial active section and button
+            switchView('profiles');
 
             function switchView(view) {
                 Object.values(sections).forEach(section => section.classList.add('hidden'));
@@ -303,8 +306,6 @@
                     }
                 });
             }
-
-            // Removed createStrengthsChart function
 
             async function generateStrategicInsight(trend, outputElement) {
                 outputElement.innerHTML = '<span class="text-slate-500">Generating insight...</span>';
@@ -449,7 +450,7 @@
 
                     card.addEventListener('click', (event) => {
                         // Only toggle details if the click is not on a button or a link
-                        if (!event.target.classList.contains('research-areas-btn') && !event.target.tagName === 'A') {
+                        if (!event.target.classList.contains('research-areas-btn') && event.target.tagName !== 'A') {
                             const details = card.querySelector('.details-section');
                             const arrow = card.querySelector('span');
                             const isOpen = details.classList.toggle('open');
@@ -519,7 +520,6 @@
 
 
             createCommitmentChart();
-            // Removed createStrengthsChart();
             populateUniversityProfiles();
             populateTrends();
         });
