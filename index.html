@@ -13,7 +13,6 @@
     <!-- Application Structure Plan: A single-page application with a top navigation bar to switch between three main views: 'Overview & Comparison', 'University Profiles', and 'Key Trends'. This dashboard-like structure allows users to first get a high-level comparative understanding via charts, then dive into detailed information for each university, and finally synthesize the evolution of the field. The flow is designed to guide the user from broad comparison to specific details and then to overarching insights, which is a more intuitive way to consume a dense benchmarking report than a linear document. -->
     <!-- Visualization & Content Choices: 
         - Report Info: University XR Commitment/Investment Rating. Goal: Compare institutions directly. Viz: Interactive Bar Chart (Chart.js). Interaction: Hovering over bars shows the exact rating. Justification: A bar chart is the clearest way to compare a single quantitative metric across multiple entities. Library: Chart.js.
-        - Report Info: Key Strengths (e.g., AI Integration, Medical XR, etc.). Goal: Show thematic clusters and leadership areas. Viz: Bubble Chart (Chart.js). Interaction: Hovering over bubbles reveals the university and its specific strength. Justification: A bubble chart can represent multiple dimensions (e.g., number of universities in a category, perceived impact) and quickly show which strategic areas are most common or prominent. Library: Chart.js.
         - Report Info: Evolution of XR from 2020 to 2025. Goal: Illustrate the shift in focus and maturity. Viz: HTML/CSS based visual timeline. Interaction: Clicking on trend titles reveals descriptive text. Justification: A timeline is a natural and effective way to represent change over time, making the report's trend analysis more dynamic and engaging than a simple text list. Method: HTML/CSS with JS for interactivity.
         - Report Info: Detailed university profiles. Goal: Provide in-depth, organized information. Viz: Interactive HTML cards. Interaction: Clicking a university logo/name expands to show a detailed card with categorized information. Justification: This keeps the main view uncluttered while providing easy access to comprehensive data, preventing information overload. Method: HTML/CSS with JS for toggling visibility.
     -->
@@ -114,19 +113,19 @@
                         <canvas id="commitmentChart"></canvas>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-2xl font-semibold text-center mb-4 text-slate-800">Key Strategic Strengths in XR</h2>
-                     <p class="text-center text-slate-600 mb-6 max-w-3xl mx-auto">This visualization clusters universities based on their primary strategic focus within XR. The size of each bubble corresponds to the number of institutions excelling in that area. This reveals dominant trends, such as the strong focus on Medical/Health applications and the growing convergence of AI with XR, helping to map the strategic landscape of academic XR innovation.</p>
-                    <div class="chart-container">
-                        <canvas id="strengthsChart"></canvas>
-                    </div>
+                <!-- Removed Key Strategic Strengths in XR cluster visualization -->
+                <div class="bg-white p-6 rounded-lg shadow text-center">
+                    <h2 class="text-2xl font-semibold mb-4 text-slate-800">NYU Strategic Insights</h2>
+                    <p class="text-slate-600 mb-6 max-w-3xl mx-auto">Leverage AI to get a strategic recommendation for NYU's future in XR, based on the comprehensive benchmarking data and key industry trends.</p>
+                    <button id="nyu-strategic-recommendation-btn" class="px-6 py-3 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-lg font-medium">✨ Get NYU Strategic Recommendation</button>
+                    <div id="nyu-strategic-recommendation-output" class="llm-output mt-4 hidden text-left"></div>
                 </div>
             </section>
 
             <section id="profiles" class="hidden">
                  <div class="text-center mb-8">
                     <h2 class="text-2xl font-semibold text-slate-800">Detailed University Profiles</h2>
-                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also generate an AI-powered summary for a quick overview.</p>
+                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also get AI-powered suggestions for future research areas.</p>
                 </div>
                 <div id="university-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 </div>
@@ -146,22 +145,92 @@
     </div>
 
     <script>
+        const globalReferences = {
+            1: "https://www.cs.cmu.edu/news/2025/xrtc-publications",
+            2: "https://xraccess.org/symposium2025/",
+            3: "https://xrc.infosci.cornell.edu/",
+            4: "https://medschool.duke.edu/education/graduate-medical-education/vr-heal",
+            5: "https://harvardxr.org/augmented-self-2025",
+            6: "https://xri.iu.edu/",
+            7: "https://plaits.jhu.edu/",
+            8: "https://news.mit.edu/topic/virtual-reality",
+            9: "https://engineering.nyu.edu/research-innovation/labs-centers/holodeck",
+            10: "https://cie.psu.edu/",
+            11: "https://princetonuniversityconcerts.org/events/future-presence",
+            12: "https://www.purdue.edu/newsroom/releases/2025/Q1/purdue-university-in-indianapolis-launches-collab-xr-program.html",
+            13: "https://xr.stanford.edu/conference/",
+            14: "https://duderstadt.umich.edu/services/visualization-studio/",
+            15: "https://xrpeds.yale.edu/",
+            16: "https://block.cmu.edu/about/transition-2024-2025/",
+            18: "https://www.tc.columbia.edu/immersive-learning/",
+            19: "https://www.cs.columbia.edu/ceal/",
+            20: "https://arts.duke.edu/resources/xr-studio/",
+            21: "https://ece.duke.edu/faculty/maria-gorlatova",
+            22: "https://ece.duke.edu/news/dr-maria-gorlatova-speak-awe-usa-2025",
+            23: "https://harvardxr.org/",
+            24: "https://www.linkedin.com/company/harvardxr/",
+            25: "https://library.harvard.edu/services-spaces/cabot-science-library/the-hive",
+            26: "https://harvardxr.org/agenda",
+            27: "https://academictech.fas.harvard.edu/",
+            28: "https://www.iu.edu/news/stories/2023/08/iu-purdue-indianapolis-split-timeline.html",
+            29: "https://www.jhuapl.edu/events/xrsymposium",
+            30: "https://filmmedia.jhu.edu/immersive-storytelling-and-emerging-technologies",
+            31: "https://digitalmedia.jhu.edu/",
+            32: "https://www.mit.edu/immersive-lab/",
+            33: "https://realityhack.io/",
+            34: "https://mitnano.mit.edu/immersion-lab",
+            35: "https://engineering.nyu.edu/research-innovation/labs-centers/holodeck",
+            36: "https://www.nyu.edu/students/student-life/technology-and-internet/it-labs/immersive-technology-lab.html",
+            37: "https://engineering.nyu.edu/academics/programs/summer-programs/xr-extending-reality-through-virtual-worlds",
+            38: "https://cie.psu.edu/",
+            39: "https://behrend.psu.edu/academics/academic-majors/school-engineering/virtual-augmented-reality-lab",
+            40: "https://cie.psu.edu/courses-and-grants",
+            41: "https://library.princeton.edu/stokes/vr",
+            42: "https://sgs.princeton.edu/projects/nuclear-crisis-simulation",
+            43: "https://www.purdue.edu/innovationhub/collab-xr/",
+            44: "https://polytechnic.purdue.edu/degrees/computer-graphics-technology/virtual-reality-lab",
+            45: "https://vhil.stanford.edu/",
+            46: "https://cs.stanford.edu/courses/cs377/",
+            47: "https://innovationpartnerships.umich.edu/",
+            48: "https://www.xrmidwest.org/",
+            49: "https://ai.umich.edu/extended-reality/",
+            50: "https://www.si.umich.edu/people/michael-nebeling",
+            51: "https://innovationpartnerships.umich.edu/news/innovation-partnerships-supports-extended-reality-xr-initiatives/",
+            52: "https://medicine.yale.edu/childstudy/ccam/fellowship/",
+            53: "https://ccam.yale.edu/",
+            54: "https://xrpeds.yale.edu/about-us/supporters",
+            55: "https://ccam.yale.edu/exhibitions/ccam-studio-fellowship-exhibition-2024–2025",
+            56: "https://www.nyu.edu/about/leadership-university-administration/office-of-the-provost/academic-technology/high-speed-research-network.html"
+        };
+
+        // Function to replace [X] with hyperlinks
+        function applyReferences(text) {
+            return text.replace(/\[(\d+)\]/g, (match, p1) => {
+                const refId = parseInt(p1);
+                const url = globalReferences[refId];
+                if (url) {
+                    return `<a href="${url}" target="_blank" class="text-blue-600 hover:underline">[${refId}]</a>`;
+                }
+                return match; // Return original if no URL found
+            });
+        }
+
         const universityData = [
-            { name: 'Carnegie Mellon', rating: 4, strengths: ['AI-Integrated XR', 'Foundational Research'], details: { investments: 'Strategic focus on AI/XR via Block Center; funding for advanced immersive tech research.', facilities: 'Dedicated XR Technology Center (XRTC) for immersive tech research and development.', research: 'XRTC drives immersive tech research; Block Center explores AI/XR in education/healthcare.', staff: 'XRTC and Block Center likely have dedicated personnel, though specific numbers aren\'t detailed.', partnerships: 'Collaboration with Fujitsu on 3D scene reconstruction research.' } },
-            { name: 'Columbia', rating: 3, strengths: ['Accessibility', 'Educational Integration'], details: { investments: 'Continued support for XR accessibility research and immersive learning initiatives.', facilities: 'Computer-Enabled Abilities Laboratory (CEAL) for game accessibility research; Immersive Learning Initiative facilities.', research: 'CEAL focuses on accessible video games; Immersive Learning Initiative explores VR/AR in education.', staff: 'Brian A. Smith directs CEAL; Immersive Learning Initiative has instructional designers.', partnerships: 'CEAL collaborates with companies; XR Access Symposium involves Meta Reality Labs.' } },
-            { name: 'Cornell', rating: 4, strengths: ['Deep Curriculum', 'Interdisciplinary Labs'], details: { investments: 'Significant investment in XR Collaboratory courses and diverse XR research labs.', facilities: 'XR Collaboratory, Design & Augmented Intelligence Lab, Virtual Embodiment Lab, others.', research: 'Robust XR Collaboratory courses (3D Interaction Design, VR/AR); diverse lab research.', staff: 'Harald Haraldsson directs XR Collaboratory; numerous faculty across disciplines.', partnerships: 'Not explicitly detailed for 2025, but XR Access Symposium involves industry leaders.' } },
-            { name: 'Duke', rating: 4, strengths: ['Medical Training', 'Interdisciplinary Development'], details: { investments: 'Significant investment in medical education XR, particularly VR-HEAL project.', facilities: 'XR Studio for computational media; VR-HEAL developing haptic gloves, virtual OR.', research: 'VR-HEAL focuses on interventional radiology training; Dr. Gorlatova researches next-gen AR.', staff: 'VR-HEAL has team leaders, graduate members, and contributors; Dr. Maria Gorlatova.', partnerships: 'Dr. Gorlatova speaks at AWE USA 2025; Apple Workshop on Human-Centered ML.' } },
-            { name: 'Harvard', rating: 4, strengths: ['Community-Driven', 'Industry Ties', 'Ethics'], details: { investments: 'HarvardXR non-profit organization supports annual conferences, exploring XR/AI boundaries.', facilities: 'Cabot Science Library\'s "The Hive" offers Valve Index, HTC Vive, and software.', research: 'HarvardXR conference promotes discussion on XR\'s future in various industries.', staff: 'HarvardXR has co-leads and a large core team; Academic Technology for FAS supports XR use.', partnerships: 'HarvardXR conference sponsored by SnapAR, Uber, Microsoft, Meta, Samsung, Pico XR.' } },
-            { name: 'Indiana (IUI)', rating: 4, strengths: ['Widespread Integration'], details: { investments: 'Significant XRI Faculty Fellow grants for 2024/2025 to integrate XR into diverse courses.', facilities: 'IU Indianapolis University Library VR Lab; access to Oculus Quest, MERGE Cube, Google Cardboard.', research: 'XRI supports new courses (e.g., "XR for Social Good," VR Anatomy, pediatric dental AR/VR).', staff: 'Numerous faculty across various schools are XRI grant recipients, actively developing XR curricula.', partnerships: 'XR Initiative is a collaboration among multiple units; sponsors include UITS, Advanced Visualization Lab.' } },
-            { name: 'Johns Hopkins', rating: 4, strengths: ['Creative Arts', 'Applied Research', 'Ethics'], details: { investments: 'XR Collaboration Center sponsors symposium; ongoing research in immersive storytelling and AI.', facilities: 'Applied Physics Laboratory (APL) hosts XR Symposium; Digital Media Center is a multimedia lab.', research: 'MA in Film and Media (Immersive Storytelling); APL conducts XR research; PLAITS conference on AI/immersive tech.', staff: 'Digital Media Center has professional and student staff; APL has XR Collaboration Center.', partnerships: 'APL\'s XR Symposium involves sponsors/collaborators; Connect Tech showcases NVIDIA Jetson modules.' } },
-            { name: 'MIT', rating: 5, strengths: ['Foundational Innovation', 'Global Leadership'], details: { investments: 'MIT.nano Immersion Lab for AR/VR prototyping; Reality Hackathon and related events.', facilities: 'MIT.nano Immersion Lab with AR/VR, high-performance workstations, motion capture.', research: 'Extensive VR/AR research across departments; "How to think like a VR developer" workshop.', staff: 'Talis Reks (AR/VR/Gaming Technologist); Y. Jenny Wang (Lecturer, XR developer); MIT.nano staff.', partnerships: 'MIT.nano Immersion Lab Gaming Program with NCSOFT; Reality Hack involves brand mentors.' } },
-            { name: 'NYU', rating: 4, strengths: ['Centralized Hubs', 'Urban Ecosystem'], details: { investments: 'City-funded RLab; Holodeck project for VR research; ITLab support.', facilities: 'Holodeck for VR research; RLab for VR/AR; ITLab for immersive tech.', research: 'Holodeck fosters VR research; RLab for research/education; ITLab offers VR workshops.', staff: 'Learning Experience Design developers; ITLab staff; Holodeck interdisciplinary team.', partnerships: 'RLab is city-funded; Holodeck links Future Reality Lab, MAGNET.' } },
-            { name: 'Penn State', rating: 4, strengths: ['Pedagogical Transformation', 'Broad Access'], details: { investments: 'Center for Immersive Experiences (CIE) with NSF grants; focus on transforming education.', facilities: 'CIE provides facilities; IMEX Lab for 360 video; VAR Lab with Matchbox, XRcast Studios.', research: 'CIE offers courses/grants; VAR Lab enhances learning, recreates historical venues.', staff: 'CIE is "well-staffed"; VAR Lab and TLT collaborate on XR Catalog.', partnerships: 'National Science Foundation supports industrial engineering simulation; VAR Lab seeks partnerships.' } },
-            { name: 'Princeton', rating: 3, strengths: ['Specialized Applications', 'Public Engagement'], details: { investments: 'Stokes Library VR studio; "Future Presence" VR/spatial sound installation.', facilities: 'Stokes Library VR Studio (Meta Quest 3 headsets); Woolworth Music Building for "Future Presence."', research: 'Science and Global Security Lab\'s nuclear crisis VR simulation (pre-2023); "Future Presence" explores music via VR.', staff: 'Science and Global Security Lab has 9 staff; Stokes Library VR program has dedicated staff.', partnerships: 'Mahler Chamber Orchestra (MCO) partnered for "Future Presence."' } },
-            { name: 'Purdue (IUI)', rating: 4, strengths: ['Scalable Integration', 'Data Visualization'], details: { investments: 'Envision Center\'s Collab XR program for academic XR experiences; VR Lab at Polytechnic Institute.', facilities: 'Envision Center\'s Collab XR platform (Meta Quest 3); Polytechnic Institute\'s VR Lab with state-of-the-art devices.', research: 'Collab XR focuses on scientific 3D data visualization and immersive learning scenarios.', staff: 'Envision Center has a director, technical director, visual solutions engineers; Polytechnic VR Lab has faculty contact.', partnerships: 'Purdue Innovation Hub partners with Envision Center for Collab XR.' } },
-            { name: 'Stanford', rating: 5, strengths: ['Human-Centered Research', 'Industry Shaping'], details: { investments: 'Long-standing Virtual Human Interaction Lab (VHIL); Stanford XR Conference with industry sponsors.', facilities: 'VHIL has dedicated lab space; "Designing for Extended Realities" course provides XR devices.', research: 'VHIL researches psychological/behavioral effects of VR/AR; "Designing for Extended Realities" course.', staff: 'VHIL has founding director, PhD students, visiting scholars; course instructors and industry mentors.', partnerships: 'Stanford XR Conference sponsors include SnapAR, Uber, Microsoft, Meta.' } },
-            { name: 'U of Michigan', rating: 5, strengths: ['Comprehensive Integration', 'Pedagogical Innovation'], details: { investments: 'Innovation Partnerships supports XR; XR Midwest hackathon provides hardware, mentorship.', facilities: 'Duderstadt Center\'s Visualization Studio (M.I.D.E.N., 30+ workstations, various headsets).', research: 'Center for Academic Innovation has 3 dozen XR projects; UMSI Interaction Lab researches AR/VR/MR.', staff: 'Jessi Kittel (XR Project Lead); Ted Hall (XR Visualization Specialist); Michael Nebeling (UMSI Interaction Lab Director).', partnerships: 'XR Midwest partners with Center for Academic Innovation; Innovation Partnerships facilitates commercial advancement.' } },
-            { name: 'Yale', rating: 4, strengths: ['Health Interventions', 'Arts/Science Convergence'], details: { investments: 'Yale Center for Immersive Technologies in Pediatrics; CCAM Studio Fellowship.', facilities: 'XRPeds Lab; Center for Collaborative Arts and Media (CCAM) with motion capture studio.', research: 'XRPeds focuses on health interventions for youth; CCAM investigates art/science/tech intersections.', staff: 'XRPeds has a leadership team and numerous collaborators; CCAM led by Dana Karwas.', partnerships: 'XRPeds supported by Unity Technologies; Blended Reality project with HP (pre-2023).' } }
+            { name: 'Carnegie Mellon', rating: 4, details: { investments: 'Strategic focus on AI/XR via Block Center; funding for advanced immersive tech research. [1, 16]', facilities: 'Dedicated XR Technology Center (XRTC) for immersive tech research and development. [1]', research: 'XRTC drives immersive tech research; Block Center explores AI/XR in education/healthcare. [1, 16]', staff: 'XRTC and Block Center likely have dedicated personnel, though specific numbers aren\'t detailed.', partnerships: 'Collaboration with Fujitsu on 3D scene reconstruction research. [1]' } },
+            { name: 'Columbia', rating: 3, details: { investments: 'Continued support for XR accessibility research and immersive learning initiatives. [2, 18]', facilities: 'Computer-Enabled Abilities Laboratory (CEAL) for game accessibility research; Immersive Learning Initiative facilities. [2, 18, 19]', research: 'CEAL focuses on accessible video games; Immersive Learning Initiative explores VR/AR in education. [2, 18]', staff: 'Brian A. Smith directs CEAL; Immersive Learning Initiative has instructional designers. [2, 18]', partnerships: 'CEAL collaborates with companies; XR Access Symposium involves Meta Reality Labs. [2]' } },
+            { name: 'Cornell', rating: 4, details: { investments: 'Significant investment in XR Collaboratory courses and diverse XR research labs. [3]', facilities: 'XR Collaboratory, Design & Augmented Intelligence Lab, Virtual Embodiment Lab, others. [3]', research: 'Robust XR Collaboratory courses (3D Interaction Design, VR/AR); diverse lab research. [3]', staff: 'Harald Haraldsson directs XR Collaboratory; numerous faculty across disciplines. [3]', partnerships: 'Not explicitly detailed for 2025, but XR Access Symposium involves industry leaders. [2, 3]' } },
+            { name: 'Duke', rating: 4, details: { investments: 'Significant investment in medical education XR, particularly VR-HEAL project. [4]', facilities: 'XR Studio for computational media; VR-HEAL developing haptic gloves, virtual OR. [4, 20]', research: 'VR-HEAL focuses on interventional radiology training; Dr. Gorlatova researches next-gen AR. [4, 21]', staff: 'VR-HEAL has team leaders, graduate members, and contributors; Dr. Maria Gorlatova. [4, 21]', partnerships: 'Dr. Gorlatova speaks at AWE USA 2025; Apple Workshop on Human-Centered ML. [21, 22]' } },
+            { name: 'Harvard', rating: 4, details: { investments: 'HarvardXR non-profit organization supports annual conferences, exploring XR/AI boundaries. [23, 24]', facilities: 'Cabot Science Library\'s "The Hive" offers Valve Index, HTC Vive, and software. [25]', research: 'HarvardXR conference promotes discussion on XR\'s future in various industries. [23, 26]', staff: 'HarvardXR has co-leads and a large core team; Academic Technology for FAS supports XR use. [23, 24, 27]', partnerships: 'HarvardXR conference sponsored by SnapAR, Uber, Microsoft, Meta, Samsung, Pico XR. [23]' } },
+            { name: 'Indiana (IUI)', rating: 4, details: { investments: 'Significant XRI Faculty Fellow grants for 2024/2025 to integrate XR into diverse courses. [6]', facilities: 'IU Indianapolis University Library VR Lab; access to Oculus Quest, MERGE Cube, Google Cardboard. [6]', research: 'XRI supports new courses (e.g., "XR for Social Good," VR Anatomy, pediatric dental AR/VR). [6]', staff: 'Numerous faculty across various schools are XRI grant recipients, actively developing XR curricula. [6]', partnerships: 'XR Initiative is a collaboration among multiple units; sponsors include UITS, Advanced Visualization Lab. [6]' } },
+            { name: 'Johns Hopkins', rating: 4, details: { investments: 'XR Collaboration Center sponsors symposium; ongoing research in immersive storytelling and AI. [29, 30]', facilities: 'Applied Physics Laboratory (APL) hosts XR Symposium; Digital Media Center is a multimedia lab. [29, 31]', research: 'MA in Film and Media (Immersive Storytelling); APL conducts XR research; PLAITS conference on AI/immersive tech. [7, 30]', staff: 'Digital Media Center has professional and student staff; APL has XR Collaboration Center. [29, 31]', partnerships: 'APL\'s XR Symposium involves sponsors/collaborators; Connect Tech showcases NVIDIA Jetson modules. [29]' } },
+            { name: 'MIT', rating: 5, details: { investments: 'MIT.nano Immersion Lab for AR/VR prototyping; Reality Hackathon and related events. [32, 33]', facilities: 'MIT.nano Immersion Lab with AR/VR, high-performance workstations, motion capture. [32, 34]', research: 'Extensive VR/AR research across departments; "How to think like a VR developer" workshop. [8, 32]', staff: 'Talis Reks (AR/VR/Gaming Technologist); Y. Jenny Wang (Lecturer, XR developer); MIT.nano staff. [32]', partnerships: 'MIT.nano Immersion Lab Gaming Program with NCSOFT; Reality Hack involves brand mentors. [32, 33]' } },
+            { name: 'NYU', rating: 4, details: { investments: 'City-funded RLab; Holodeck project for VR research; ITLab support. [17, 35, 36]', facilities: 'Holodeck for VR research; RLab for VR/AR; ITLab for immersive tech. [17, 35, 36]', research: 'Holodeck fosters VR research; RLab for research/education; ITLab offers VR workshops. [17, 35, 36]', staff: 'Learning Experience Design developers; ITLab staff; Holodeck interdisciplinary team. [17, 35, 36]', partnerships: 'RLab is city-funded; Holodeck links Future Reality Lab, MAGNET. [17, 35]' } },
+            { name: 'Penn State', rating: 4, details: { investments: 'Center for Immersive Experiences (CIE) with NSF grants; focus on transforming education. [38]', facilities: 'CIE provides facilities; IMEX Lab for 360 video; VAR Lab with Matchbox, XRcast Studios. [17, 38, 39]', research: 'CIE offers courses/grants; VAR Lab enhances learning, recreates historical venues. [17, 39, 40]', staff: 'CIE is "well-staffed"; VAR Lab and TLT collaborate on XR Catalog. [17, 38, 39]', partnerships: 'National Science Foundation supports industrial engineering simulation; VAR Lab seeks partnerships. [17, 38, 39]' } },
+            { name: 'Princeton', rating: 3, details: { investments: 'Stokes Library VR studio; "Future Presence" VR/spatial sound installation. [11, 41]', facilities: 'Stokes Library VR Studio (Meta Quest 3 headsets); Woolworth Music Building for "Future Presence." [11, 41]', research: 'Science and Global Security Lab\'s nuclear crisis VR simulation (pre-2023); "Future Presence" explores music via VR. [11, 17, 42]', staff: 'Science and Global Security Lab has 9 staff; Stokes Library VR program has dedicated staff. [17, 41]', partnerships: 'Mahler Chamber Orchestra (MCO) partnered for "Future Presence." [11]' } },
+            { name: 'Purdue (IUI)', rating: 4, details: { investments: 'Envision Center\'s Collab XR program for academic XR experiences; VR Lab at Polytechnic Institute. [12, 43]', facilities: 'Envision Center\'s Collab XR platform (Meta Quest 3); Polytechnic Institute\'s VR Lab with state-of-the-art devices. [12, 44]', research: 'Collab XR focuses on scientific 3D data visualization and immersive learning scenarios. [12, 43]', staff: 'Envision Center has a director, technical director, visual solutions engineers; Polytechnic VR Lab has faculty contact. [43, 44]', partnerships: 'Purdue Innovation Hub partners with Envision Center for Collab XR. [43]' } },
+            { name: 'Stanford', rating: 5, details: { investments: 'Long-standing Virtual Human Interaction Lab (VHIL); Stanford XR Conference with industry sponsors. [13, 45]', facilities: 'VHIL has dedicated lab space; "Designing for Extended Realities" course provides XR devices. [45, 46]', research: 'VHIL researches psychological/behavioral effects of VR/AR; "Designing for Extended Realities" course. [45, 46]', staff: 'VHIL has founding director, PhD students, visiting scholars; course instructors and industry mentors. [45, 46]', partnerships: 'Stanford XR Conference sponsors include SnapAR, Uber, Microsoft, Meta. [13]' } },
+            { name: 'U of Michigan', rating: 5, details: { investments: 'Innovation Partnerships supports XR; XR Midwest hackathon provides hardware, mentorship. [47, 48]', facilities: 'Duderstadt Center\'s Visualization Studio (M.I.D.E.N., 30+ workstations, various headsets). [14]', research: 'Center for Academic Innovation has 3 dozen XR projects; UMSI Interaction Lab researches AR/VR/MR. [49, 50]', staff: 'Jessi Kittel (XR Project Lead); Ted Hall (XR Visualization Specialist); Michael Nebeling (UMSI Interaction Lab Director). [47, 50]', partnerships: 'XR Midwest partners with Center for Academic Innovation; Innovation Partnerships facilitates commercial advancement. [48, 51]' } },
+            { name: 'Yale', rating: 4, details: { investments: 'Yale Center for Immersive Technologies in Pediatrics; CCAM Studio Fellowship. [15, 52]', facilities: 'XRPeds Lab; Center for Collaborative Arts and Media (CCAM) with motion capture studio. [15, 53]', research: 'XRPeds focuses on health interventions for youth; CCAM investigates art/science/tech intersections. [15, 53]', staff: 'XRPeds has a leadership team and numerous collaborators; CCAM led by Dana Karwas. [15, 53]', partnerships: 'XRPeds supported by Unity Technologies; Blended Reality project with HP (pre-2023). [17, 54]' } }
         ];
 
         const trendsData = [
@@ -235,90 +304,7 @@
                 });
             }
 
-            function createStrengthsChart() {
-                const strengthsCount = universityData.flatMap(u => u.strengths).reduce((acc, strength) => {
-                    acc[strength] = (acc[strength] || 0) + 1;
-                    return acc;
-                }, {});
-
-                const bubbleData = Object.entries(strengthsCount).map(([strength, count]) => ({
-                    x: Math.random() * 10,
-                    y: Math.random() * 10,
-                    r: count * 8,
-                    label: strength,
-                    count: count
-                }));
-
-                const ctx = document.getElementById('strengthsChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bubble',
-                    data: {
-                        datasets: [{
-                            label: 'Key Strengths',
-                            data: bubbleData,
-                            backgroundColor: 'rgba(202, 138, 4, 0.6)', // yellow-600
-                            borderColor: 'rgba(202, 138, 4, 1)',
-                        }]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        scales: {
-                           y: { display: false },
-                           x: { display: false }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.raw.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        label += `${context.raw.count} Universit${context.raw.count > 1 ? 'ies' : 'y'}`;
-                                        return label;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            async function generateSummary(details, outputElement) {
-                outputElement.innerHTML = '<span class="text-slate-500">Generating summary...</span>';
-                const prompt = `Summarize the following Extended Reality (XR) capabilities of a university in a concise paragraph (maximum 60 words). Focus on their key investments, facilities, research, staff, and partnerships.
-                Investments: ${details.investments}
-                Facilities & Equipment: ${details.facilities}
-                Research & Programs: ${details.research}
-                Dedicated Staff: ${details.staff}
-                Industry Partnerships: ${details.partnerships}`;
-
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    const response = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        outputElement.innerHTML = text;
-                    } else {
-                        outputElement.innerHTML = 'Failed to generate summary.';
-                    }
-                } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    outputElement.innerHTML = 'Error generating summary. Please try again.';
-                }
-            }
+            // Removed createStrengthsChart function
 
             async function generateStrategicInsight(trend, outputElement) {
                 outputElement.innerHTML = '<span class="text-slate-500">Generating insight...</span>';
@@ -350,6 +336,91 @@
                 }
             }
 
+            async function suggestResearchAreas(uni, outputElement) {
+                outputElement.innerHTML = '<span class="text-slate-500">Suggesting research areas...</span>';
+                const prompt = `Based on the following XR capabilities of ${uni.name}, suggest 3-5 potential future research areas they could explore, considering current trends like AI-XR convergence, medical XR, and ethical considerations.
+                University: ${uni.name}
+                Investments: ${uni.details.investments}
+                Facilities & Equipment: ${uni.details.facilities}
+                Research & Programs: ${uni.details.research}
+                Dedicated Staff: ${uni.details.staff}
+                Industry Partnerships: ${uni.details.partnerships}
+                Provide the suggestions as a concise paragraph or bullet points.`;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputElement.innerHTML = text;
+                    } else {
+                        outputElement.innerHTML = 'Failed to suggest research areas.';
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    outputElement.innerHTML = 'Error suggesting research areas. Please try again.';
+                }
+            }
+
+            async function getNyuStrategicRecommendation(nyuData, allUniData, trendsData, outputElement) {
+                outputElement.innerHTML = '<span class="text-slate-500">Generating recommendation for NYU...</span>';
+                const allUniversitiesSummary = allUniData.map(u => `${u.name} (Rating: ${u.rating})`).join('; ');
+                const allTrendsSummary = trendsData.map(t => `${t.title}: ${t.description}`).join('; ');
+
+                const prompt = `Based on the following benchmarking data for NYU and its peer universities, and the key XR trends, provide a strategic recommendation for NYU's next steps in Extended Reality (XR). Focus on leveraging its strengths, addressing potential gaps, and aligning with future trends. Keep the recommendation concise (maximum 100 words).
+
+                NYU's Data:
+                Investments: ${nyuData.details.investments}
+                Facilities & Equipment: ${nyuData.details.facilities}
+                Research & Programs: ${nyuData.details.research}
+                Dedicated Staff: ${nyuData.details.staff}
+                Industry Partnerships: ${nyuData.details.partnerships}
+                Rating: ${nyuData.rating}
+
+                Peer University Summary: ${allUniversitiesSummary}
+
+                Key XR Trends: ${allTrendsSummary}
+
+                Strategic Recommendation for NYU:`;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputElement.innerHTML = text;
+                    } else {
+                        outputElement.innerHTML = 'Failed to generate recommendation.';
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    outputElement.innerHTML = 'Error generating recommendation. Please try again.';
+                }
+            }
+
+
             function populateUniversityProfiles() {
                 const container = document.getElementById('university-profiles-container');
                 universityData.forEach(uni => {
@@ -357,17 +428,19 @@
                     card.className = 'university-card bg-white rounded-lg shadow-md cursor-pointer';
                     card.innerHTML = `
                         <div class="p-4 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-slate-800">${uni.name}</h3>
+                            <h3 class="text-lg font-semibold text-slate-800">${uni.name} <span class="text-sm text-slate-500">(Rating: ${uni.rating}/5)</span></h3>
                             <span class="text-2xl text-amber-500 transform transition-transform duration-300">&#x25BC;</span>
                         </div>
                         <div class="details-section px-4 pb-4 text-slate-600">
                             <div class="border-t border-slate-200 pt-4 space-y-3">
-                                <p><strong>Investments:</strong> ${uni.details.investments}</p>
-                                <p><strong>Facilities & Equipment:</strong> ${uni.details.facilities}</p>
-                                <p><strong>Research & Programs:</strong> ${uni.details.research}</p>
-                                <p><strong>Dedicated Staff:</strong> ${uni.details.staff}</p>
-                                <p><strong>Industry Partnerships:</strong> ${uni.details.partnerships}</p>
-                                <button class="summarize-btn mt-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200">✨ Summarize Profile</button>
+                                <p><strong>Investments:</strong> ${applyReferences(uni.details.investments)}</p>
+                                <p><strong>Facilities & Equipment:</strong> ${applyReferences(uni.details.facilities)}</p>
+                                <p><strong>Research & Programs:</strong> ${applyReferences(uni.details.research)}</p>
+                                <p><strong>Dedicated Staff:</strong> ${applyReferences(uni.details.staff)}</p>
+                                <p><strong>Industry Partnerships:</strong> ${applyReferences(uni.details.partnerships)}</p>
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <button class="research-areas-btn px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-sm">✨ Suggest Research Areas</button>
+                                </div>
                                 <div class="llm-output mt-2 hidden"></div>
                             </div>
                         </div>
@@ -375,8 +448,8 @@
                     container.appendChild(card);
 
                     card.addEventListener('click', (event) => {
-                        // Only toggle details if the click is not on the button
-                        if (!event.target.classList.contains('summarize-btn')) {
+                        // Only toggle details if the click is not on a button or a link
+                        if (!event.target.classList.contains('research-areas-btn') && !event.target.tagName === 'A') {
                             const details = card.querySelector('.details-section');
                             const arrow = card.querySelector('span');
                             const isOpen = details.classList.toggle('open');
@@ -384,12 +457,13 @@
                         }
                     });
 
-                    const summarizeButton = card.querySelector('.summarize-btn');
+                    const researchAreasButton = card.querySelector('.research-areas-btn');
                     const llmOutputDiv = card.querySelector('.llm-output');
-                    summarizeButton.addEventListener('click', (event) => {
+
+                    researchAreasButton.addEventListener('click', (event) => {
                         event.stopPropagation(); // Prevent card from collapsing
                         llmOutputDiv.classList.remove('hidden');
-                        generateSummary(uni.details, llmOutputDiv);
+                        suggestResearchAreas(uni, llmOutputDiv);
                     });
                 });
             }
@@ -406,7 +480,7 @@
                         </div>
                         <div class="trend-description text-slate-600 bg-slate-50 rounded-b-md">
                            <p class="px-4">${trend.description}</p>
-                           <button class="strategic-insight-btn mt-4 ml-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200">✨ Get Strategic Insight</button>
+                           <button class="strategic-insight-btn mt-4 ml-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-sm">✨ Get Strategic Insight</button>
                            <div class="llm-output mt-2 ml-4 hidden"></div>
                         </div>
                     `;
@@ -431,8 +505,21 @@
                 });
             }
 
+            // NYU Strategic Recommendation Button
+            const nyuStrategicRecommendationBtn = document.getElementById('nyu-strategic-recommendation-btn');
+            const nyuStrategicRecommendationOutput = document.getElementById('nyu-strategic-recommendation-output');
+            const nyuData = universityData.find(uni => uni.name === 'NYU');
+
+            if (nyuStrategicRecommendationBtn && nyuData) {
+                nyuStrategicRecommendationBtn.addEventListener('click', () => {
+                    nyuStrategicRecommendationOutput.classList.remove('hidden');
+                    getNyuStrategicRecommendation(nyuData, universityData, trendsData, nyuStrategicRecommendationOutput);
+                });
+            }
+
+
             createCommitmentChart();
-            createStrengthsChart();
+            // Removed createStrengthsChart();
             populateUniversityProfiles();
             populateTrends();
         });
