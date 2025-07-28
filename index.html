@@ -101,14 +101,13 @@
         <nav class="flex justify-center bg-slate-200 rounded-lg p-2 mb-8 sticky top-2 z-10 shadow-sm">
             <button id="nav-profiles" class="nav-button active px-4 py-2 rounded-md text-sm sm:text-base">University Profiles</button>
             <button id="nav-overview" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">Overview & Comparison</button>
-            <button id="nav-trends" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">Key Trends</button>
         </nav>
 
         <main>
             <section id="profiles" class="space-y-12">
                  <div class="text-center mb-8">
                     <h2 class="text-2xl font-semibold text-slate-800">Detailed University Profiles</h2>
-                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also get AI-powered suggestions for future research areas.</p>
+                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships.</p>
                 </div>
                 <div id="university-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 </div>
@@ -122,7 +121,6 @@
                         <canvas id="commitmentChart"></canvas>
                     </div>
                 </div>
-                <!-- Removed Key Strategic Strengths in XR cluster visualization -->
                 <div class="bg-white p-6 rounded-lg shadow text-center">
                     <h2 class="text-2xl font-semibold mb-4 text-slate-800">NYU Strategic Insights</h2>
                     <p class="text-slate-600 mb-6 max-w-3xl mx-auto">Leverage AI to get a strategic recommendation for NYU's future in XR, based on the comprehensive benchmarking data and key industry trends.</p>
@@ -130,29 +128,18 @@
                     <div id="nyu-strategic-recommendation-output" class="llm-output mt-4 hidden text-left"></div>
                 </div>
             </section>
-
-            <section id="trends" class="hidden">
-                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-slate-800">Key Trends: 2020 vs. 2025</h2>
-                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">The XR landscape in higher education has evolved dramatically. This section highlights the major shifts between 2020 and 2025, from early exploration to deep strategic integration. Click on each trend to learn more about how the field has matured, revealing a more focused, impactful, and interconnected academic XR ecosystem. You can also get AI-powered strategic insights for each trend.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow max-w-4xl mx-auto">
-                    <div id="trends-container" class="space-y-4">
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 
     <script>
         const globalReferences = {
-            1: "https://www.cs.cmu.edu/news/2025/xrtc-publications",
-            2: "https://xraccess.org/symposium2025/",
+            1: "https://www.cmu.edu/xrtc/",
+            2: "https://xraccess.org/",
             3: "https://xrc.infosci.cornell.edu/",
             4: "https://medschool.duke.edu/education/graduate-medical-education/vr-heal",
             5: "https://harvardxr.org/augmented-self-2025",
             6: "https://xri.iu.edu/",
-            7: "https://plaits.jhu.edu/",
+            7: "https://ai.jhu.edu/event/privacy-and-liberty-in-the-age-of-ai-and-immersive-technologies-plaits-conference/",
             8: "https://news.mit.edu/topic/virtual-reality",
             9: "https://engineering.nyu.edu/research-innovation/labs-centers/holodeck",
             10: "https://cie.psu.edu/",
@@ -161,23 +148,24 @@
             13: "https://xr.stanford.edu/conference/",
             14: "https://duderstadt.umich.edu/services/visualization-studio/",
             15: "https://xrpeds.yale.edu/",
-            16: "https://block.cmu.edu/about/transition-2024-2025/",
-            18: "https://www.tc.columbia.edu/immersive-learning/",
-            19: "https://www.cs.columbia.edu/ceal/",
-            20: "https://arts.duke.edu/resources/xr-studio/",
+            16: "https://www.cmu.edu/block-center/about/transition-2024-2025/",
+            17: "https://www.nyu.edu/about/leadership-university-administration/office-of-the-provost/academic-technology/high-speed-research-network.html",
+            18: "https://www.tc.columbia.edu/events/info/immersive-experience-club-11436743/",
+            19: "https://www.engineering.columbia.edu/about/news/leveling-accessibility-video-games",
+            20: "https://cmac.duke.edu/faculty-labs/xr-studio/",
             21: "https://ece.duke.edu/faculty/maria-gorlatova",
-            22: "https://ece.duke.edu/news/dr-maria-gorlatova-speak-awe-usa-2025",
-            23: "https://harvardxr.org/",
+            22: "https://awexr.com/usa-2025/agenda/",
+            23: "https://www.harvardxr.com/2025/program",
             24: "https://www.linkedin.com/company/harvardxr/",
-            25: "https://library.harvard.edu/services-spaces/cabot-science-library/the-hive",
-            26: "https://harvardxr.org/agenda",
-            27: "https://academictech.fas.harvard.edu/",
+            25: "https://library.harvard.edu/services-tools/augmented-and-virtual-reality-studio",
+            26: "https://www.harvardxr.com/2025/program",
+            27: "https://atg.fas.harvard.edu/",
             28: "https://www.iu.edu/news/stories/2023/08/iu-purdue-indianapolis-split-timeline.html",
-            29: "https://www.jhuapl.edu/events/xrsymposium",
-            30: "https://filmmedia.jhu.edu/immersive-storytelling-and-emerging-technologies",
+            29: "https://www.wdlsystems.com/trade-shows",
+            30: "https://advanced.jhu.edu/news/innovative-technology-enables-emotional-storytelling/",
             31: "https://digitalmedia.jhu.edu/",
-            32: "https://www.mit.edu/immersive-lab/",
-            33: "https://realityhack.io/",
+            32: "https://mitnano.mit.edu/research-capabilities",
+            33: "https://actionlab.sites.northeastern.edu/2025/01/30/mahdi-wins-2025-mit-reality-hackathon/",
             34: "https://mitnano.mit.edu/immersion-lab",
             35: "https://engineering.nyu.edu/research-innovation/labs-centers/holodeck",
             36: "https://www.nyu.edu/students/student-life/technology-and-internet/it-labs/immersive-technology-lab.html",
@@ -233,21 +221,13 @@
             { name: 'Yale', rating: 4, details: { investments: 'Yale Center for Immersive Technologies in Pediatrics; CCAM Studio Fellowship. [15, 52]', facilities: 'XRPeds Lab; Center for Collaborative Arts and Media (CCAM) with motion capture studio. [15, 53]', research: 'XRPeds focuses on health interventions for youth; CCAM investigates art/science/tech intersections. [15, 53]', staff: 'XRPeds has a leadership team and numerous collaborators; CCAM led by Dana Karwas. [15, 53]', partnerships: 'XRPeds supported by Unity Technologies; Blended Reality project with HP (pre-2023). [17, 54]' } }
         ];
 
-        const trendsData = [
-            { title: 'Shift from Exploratory to Integrated', description: 'In 2020, XR was largely experimental. By 2025, it has become institutionalized with dedicated centers, formalized labs, and university-wide strategic initiatives, making it a core part of academic infrastructure.' },
-            { title: 'Focus on High-Impact Applications', description: 'The focus has matured from general research to specialized, high-impact use cases, particularly in medical training (e.g., surgical simulation), complex data visualization, and addressing societal issues like accessibility and ethics.' },
-            { title: 'The AI-XR Convergence', description: 'A major new trend is the deep integration of Artificial Intelligence with XR. This convergence enables more intelligent, adaptive, and personalized immersive experiences, and is seen as the next frontier for innovation.' },
-            { title: 'Increased Funding & Institutionalization', description: 'Universities are demonstrating a stronger financial commitment through significant internal grants, dedicated funding for centers, and securing major external partnerships, a clear shift from the more ad-hoc, student-led efforts of 2020.' },
-            { title: 'Stronger Industry & External Partnerships', description: 'Collaboration with tech giants and industry leaders has become more common and substantial, with universities serving as key innovation hubs for talent and R&D, and industry providing resources, mentorship, and real-world relevance.' },
-            { title: 'Emphasis on Accessibility & Ethics', description: 'There is a growing, proactive focus on inclusive design and the ethical implications of immersive technologies. Universities are leading discussions on privacy, accessibility, and responsible innovation in the XR space.' }
-        ];
+        // Removed trendsData as the section is removed.
 
         document.addEventListener('DOMContentLoaded', () => {
             const navButtons = document.querySelectorAll('.nav-button');
             const sections = {
                 profiles: document.getElementById('profiles'),
-                overview: document.getElementById('overview'),
-                trends: document.getElementById('trends')
+                overview: document.getElementById('overview')
             };
 
             // Set initial active section and button
@@ -307,79 +287,15 @@
                 });
             }
 
-            async function generateStrategicInsight(trend, outputElement) {
-                outputElement.innerHTML = '<span class="text-slate-500">Generating insight...</span>';
-                const prompt = `Given the XR trend: '${trend.title}' - '${trend.description}', provide a brief strategic insight or future implication for universities (maximum 80 words). Focus on what universities should consider or how they can leverage this trend.`;
+            // Removed generateStrategicInsight function
+            // Removed suggestResearchAreas function
 
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    const response = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        outputElement.innerHTML = text;
-                    } else {
-                        outputElement.innerHTML = 'Failed to generate insight.';
-                    }
-                } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    outputElement.innerHTML = 'Error generating insight. Please try again.';
-                }
-            }
-
-            async function suggestResearchAreas(uni, outputElement) {
-                outputElement.innerHTML = '<span class="text-slate-500">Suggesting research areas...</span>';
-                const prompt = `Based on the following XR capabilities of ${uni.name}, suggest 3-5 potential future research areas they could explore, considering current trends like AI-XR convergence, medical XR, and ethical considerations.
-                University: ${uni.name}
-                Investments: ${uni.details.investments}
-                Facilities & Equipment: ${uni.details.facilities}
-                Research & Programs: ${uni.details.research}
-                Dedicated Staff: ${uni.details.staff}
-                Industry Partnerships: ${uni.details.partnerships}
-                Provide the suggestions as a concise paragraph or bullet points.`;
-
-                try {
-                    let chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    const response = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        outputElement.innerHTML = text;
-                    } else {
-                        outputElement.innerHTML = 'Failed to suggest research areas.';
-                    }
-                } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    outputElement.innerHTML = 'Error suggesting research areas. Please try again.';
-                }
-            }
-
-            async function getNyuStrategicRecommendation(nyuData, allUniData, trendsData, outputElement) {
+            async function getNyuStrategicRecommendation(nyuData, allUniData, outputElement) {
                 outputElement.innerHTML = '<span class="text-slate-500">Generating recommendation for NYU...</span>';
                 const allUniversitiesSummary = allUniData.map(u => `${u.name} (Rating: ${u.rating})`).join('; ');
-                const allTrendsSummary = trendsData.map(t => `${t.title}: ${t.description}`).join('; ');
+                // Removed trendsData from prompt as the section is removed.
 
-                const prompt = `Based on the following benchmarking data for NYU and its peer universities, and the key XR trends, provide a strategic recommendation for NYU's next steps in Extended Reality (XR). Focus on leveraging its strengths, addressing potential gaps, and aligning with future trends. Keep the recommendation concise (maximum 100 words).
+                const prompt = `Based on the following benchmarking data for NYU and its peer universities, provide a strategic recommendation for NYU's next steps in Extended Reality (XR). Focus on leveraging its strengths, addressing potential gaps, and aligning with future trends. Keep the recommendation concise (maximum 100 words).
 
                 NYU's Data:
                 Investments: ${nyuData.details.investments}
@@ -390,8 +306,6 @@
                 Rating: ${nyuData.rating}
 
                 Peer University Summary: ${allUniversitiesSummary}
-
-                Key XR Trends: ${allTrendsSummary}
 
                 Strategic Recommendation for NYU:`;
 
@@ -439,9 +353,6 @@
                                 <p><strong>Research & Programs:</strong> ${applyReferences(uni.details.research)}</p>
                                 <p><strong>Dedicated Staff:</strong> ${applyReferences(uni.details.staff)}</p>
                                 <p><strong>Industry Partnerships:</strong> ${applyReferences(uni.details.partnerships)}</p>
-                                <div class="flex flex-wrap gap-2 mt-4">
-                                    <button class="research-areas-btn px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-sm">✨ Suggest Research Areas</button>
-                                </div>
                                 <div class="llm-output mt-2 hidden"></div>
                             </div>
                         </div>
@@ -449,62 +360,18 @@
                     container.appendChild(card);
 
                     card.addEventListener('click', (event) => {
-                        // Only toggle details if the click is not on a button or a link
-                        if (!event.target.classList.contains('research-areas-btn') && event.target.tagName !== 'A') {
+                        // Only toggle details if the click is not on a link
+                        if (event.target.tagName !== 'A') {
                             const details = card.querySelector('.details-section');
                             const arrow = card.querySelector('span');
                             const isOpen = details.classList.toggle('open');
                             arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
                         }
                     });
-
-                    const researchAreasButton = card.querySelector('.research-areas-btn');
-                    const llmOutputDiv = card.querySelector('.llm-output');
-
-                    researchAreasButton.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent card from collapsing
-                        llmOutputDiv.classList.remove('hidden');
-                        suggestResearchAreas(uni, llmOutputDiv);
-                    });
                 });
             }
 
-            function populateTrends() {
-                const container = document.getElementById('trends-container');
-                trendsData.forEach(trend => {
-                    const item = document.createElement('div');
-                    item.className = 'border-b border-slate-200 pb-2';
-                    item.innerHTML = `
-                        <div class="trend-item flex justify-between items-center p-2 rounded-md hover:bg-slate-100">
-                            <h4 class="text-md font-medium text-slate-700">${trend.title}</h4>
-                             <span class="text-xl text-amber-500 transform transition-transform duration-300">&#x25BC;</span>
-                        </div>
-                        <div class="trend-description text-slate-600 bg-slate-50 rounded-b-md">
-                           <p class="px-4">${trend.description}</p>
-                           <button class="strategic-insight-btn mt-4 ml-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200 text-sm">✨ Get Strategic Insight</button>
-                           <div class="llm-output mt-2 ml-4 hidden"></div>
-                        </div>
-                    `;
-                    container.appendChild(item);
-
-                    item.querySelector('.trend-item').addEventListener('click', (event) => {
-                        if (!event.target.classList.contains('strategic-insight-btn')) {
-                            const desc = item.querySelector('.trend-description');
-                            const arrow = item.querySelector('span');
-                            const isOpen = desc.classList.toggle('open');
-                            arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-                        }
-                    });
-
-                    const insightButton = item.querySelector('.strategic-insight-btn');
-                    const llmOutputDiv = item.querySelector('.llm-output');
-                    insightButton.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent trend description from collapsing
-                        llmOutputDiv.classList.remove('hidden');
-                        generateStrategicInsight(trend, llmOutputDiv);
-                    });
-                });
-            }
+            // Removed populateTrends function
 
             // NYU Strategic Recommendation Button
             const nyuStrategicRecommendationBtn = document.getElementById('nyu-strategic-recommendation-btn');
@@ -514,14 +381,14 @@
             if (nyuStrategicRecommendationBtn && nyuData) {
                 nyuStrategicRecommendationBtn.addEventListener('click', () => {
                     nyuStrategicRecommendationOutput.classList.remove('hidden');
-                    getNyuStrategicRecommendation(nyuData, universityData, trendsData, nyuStrategicRecommendationOutput);
+                    getNyuStrategicRecommendation(nyuData, universityData, nyuStrategicRecommendationOutput);
                 });
             }
 
 
             createCommitmentChart();
             populateUniversityProfiles();
-            populateTrends();
+            // Removed populateTrends();
         });
     </script>
 </body>
