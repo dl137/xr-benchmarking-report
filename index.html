@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive XR Benchmarking Report - 2025 Update</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate Gray & Amber -->
+    <!-- Application Structure Plan: A single-page application with a top navigation bar to switch between three main views: 'Overview & Comparison', 'University Profiles', and 'Key Trends'. This dashboard-like structure allows users to first get a high-level comparative understanding via charts, then dive into detailed information for each university, and finally synthesize the evolution of the field. The flow is designed to guide the user from broad comparison to specific details and then to overarching insights, which is a more intuitive way to consume a dense benchmarking report than a linear document. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: University XR Commitment/Investment Rating. Goal: Compare institutions directly. Viz: Interactive Bar Chart (Chart.js). Interaction: Hovering over bars shows the exact rating. Justification: A bar chart is the clearest way to compare a single quantitative metric across multiple entities. Library: Chart.js.
+        - Report Info: Key Strengths (e.g., AI Integration, Medical XR, etc.). Goal: Show thematic clusters and leadership areas. Viz: Bubble Chart (Chart.js). Interaction: Hovering over bubbles reveals the university and its specific strength. Justification: A bubble chart can represent multiple dimensions (e.g., number of universities in a category, perceived impact) and quickly show which strategic areas are most common or prominent. Library: Chart.js.
+        - Report Info: Evolution of XR from 2020 to 2025. Goal: Illustrate the shift in focus and maturity. Viz: HTML/CSS based visual timeline. Interaction: Clicking on trend titles reveals descriptive text. Justification: A timeline is a natural and effective way to represent change over time, making the report's trend analysis more dynamic and engaging than a simple text list. Method: HTML/CSS with JS for interactivity.
+        - Report Info: Detailed university profiles. Goal: Provide in-depth, organized information. Viz: Interactive HTML cards. Interaction: Clicking a university logo/name expands to show a detailed card with categorized information. Justification: This keeps the main view uncluttered while providing easy access to comprehensive data, preventing information overload. Method: HTML/CSS with JS for toggling visibility.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #ca8a04; /* yellow-600 */
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .university-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .university-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-color: #f59e0b; /* amber-500 */
+        }
+        .details-section {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .details-section.open {
+            display: block;
+            max-height: 2000px; /* Large enough for content */
+        }
+        .trend-item {
+            cursor: pointer;
+        }
+        .trend-description {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .trend-description.open {
+            max-height: 500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .llm-output {
+            background-color: #fefce8; /* yellow-50 */
+            border-left: 4px solid #f59e0b; /* amber-500 */
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+            font-style: italic;
+            color: #78350f; /* amber-900 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">University XR Capabilities</h1>
+            <p class="text-lg text-slate-600 mt-2">An Interactive Benchmarking Report - 2025 Update</p>
+        </header>
+
+        <nav class="flex justify-center bg-slate-200 rounded-lg p-2 mb-8 sticky top-2 z-10 shadow-sm">
+            <button id="nav-overview" class="nav-button active px-4 py-2 rounded-md text-sm sm:text-base">Overview & Comparison</button>
+            <button id="nav-profiles" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">University Profiles</button>
+            <button id="nav-trends" class="nav-button px-4 py-2 rounded-md text-sm sm:text-base">Key Trends</button>
+        </nav>
+
+        <main>
+            <section id="overview" class="space-y-12">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-slate-800">XR Commitment/Investment Rating (2025)</h2>
+                    <p class="text-center text-slate-600 mb-6 max-w-3xl mx-auto">This chart provides a comparative overview of the strategic commitment and investment each university has made in Extended Reality. The rating, on a scale of 1 to 5, synthesizes factors like funding, dedicated facilities, program depth, and industry integration. Use this to quickly identify leaders and emerging players in the academic XR space.</p>
+                    <div class="chart-container">
+                        <canvas id="commitmentChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold text-center mb-4 text-slate-800">Key Strategic Strengths in XR</h2>
+                     <p class="text-center text-slate-600 mb-6 max-w-3xl mx-auto">This visualization clusters universities based on their primary strategic focus within XR. The size of each bubble corresponds to the number of institutions excelling in that area. This reveals dominant trends, such as the strong focus on Medical/Health applications and the growing convergence of AI with XR, helping to map the strategic landscape of academic XR innovation.</p>
+                    <div class="chart-container">
+                        <canvas id="strengthsChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="profiles" class="hidden">
+                 <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-800">Detailed University Profiles</h2>
+                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">Explore the specific XR initiatives at each peer institution. Click on any university to expand its profile and view detailed information about its investments, facilities, research programs, staffing, and industry partnerships. You can also generate an AI-powered summary for a quick overview.</p>
+                </div>
+                <div id="university-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </section>
+
+            <section id="trends" class="hidden">
+                 <div class="text-center mb-8">
+                    <h2 class="text-2xl font-semibold text-slate-800">Key Trends: 2020 vs. 2025</h2>
+                    <p class="text-slate-600 mt-2 max-w-3xl mx-auto">The XR landscape in higher education has evolved dramatically. This section highlights the major shifts between 2020 and 2025, from early exploration to deep strategic integration. Click on each trend to learn more about how the field has matured, revealing a more focused, impactful, and interconnected academic XR ecosystem. You can also get AI-powered strategic insights for each trend.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow max-w-4xl mx-auto">
+                    <div id="trends-container" class="space-y-4">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const universityData = [
+            { name: 'Carnegie Mellon', rating: 4, strengths: ['AI-Integrated XR', 'Foundational Research'], details: { investments: 'Strategic focus on AI/XR via Block Center; funding for advanced immersive tech research.', facilities: 'Dedicated XR Technology Center (XRTC) for immersive tech research and development.', research: 'XRTC drives immersive tech research; Block Center explores AI/XR in education/healthcare.', staff: 'XRTC and Block Center likely have dedicated personnel, though specific numbers aren\'t detailed.', partnerships: 'Collaboration with Fujitsu on 3D scene reconstruction research.' } },
+            { name: 'Columbia', rating: 3, strengths: ['Accessibility', 'Educational Integration'], details: { investments: 'Continued support for XR accessibility research and immersive learning initiatives.', facilities: 'Computer-Enabled Abilities Laboratory (CEAL) for game accessibility research; Immersive Learning Initiative facilities.', research: 'CEAL focuses on accessible video games; Immersive Learning Initiative explores VR/AR in education.', staff: 'Brian A. Smith directs CEAL; Immersive Learning Initiative has instructional designers.', partnerships: 'CEAL collaborates with companies; XR Access Symposium involves Meta Reality Labs.' } },
+            { name: 'Cornell', rating: 4, strengths: ['Deep Curriculum', 'Interdisciplinary Labs'], details: { investments: 'Significant investment in XR Collaboratory courses and diverse XR research labs.', facilities: 'XR Collaboratory, Design & Augmented Intelligence Lab, Virtual Embodiment Lab, others.', research: 'Robust XR Collaboratory courses (3D Interaction Design, VR/AR); diverse lab research.', staff: 'Harald Haraldsson directs XR Collaboratory; numerous faculty across disciplines.', partnerships: 'Not explicitly detailed for 2025, but XR Access Symposium involves industry leaders.' } },
+            { name: 'Duke', rating: 4, strengths: ['Medical Training', 'Interdisciplinary Development'], details: { investments: 'Significant investment in medical education XR, particularly VR-HEAL project.', facilities: 'XR Studio for computational media; VR-HEAL developing haptic gloves, virtual OR.', research: 'VR-HEAL focuses on interventional radiology training; Dr. Gorlatova researches next-gen AR.', staff: 'VR-HEAL has team leaders, graduate members, and contributors; Dr. Maria Gorlatova.', partnerships: 'Dr. Gorlatova speaks at AWE USA 2025; Apple Workshop on Human-Centered ML.' } },
+            { name: 'Harvard', rating: 4, strengths: ['Community-Driven', 'Industry Ties', 'Ethics'], details: { investments: 'HarvardXR non-profit organization supports annual conferences, exploring XR/AI boundaries.', facilities: 'Cabot Science Library\'s "The Hive" offers Valve Index, HTC Vive, and software.', research: 'HarvardXR conference promotes discussion on XR\'s future in various industries.', staff: 'HarvardXR has co-leads and a large core team; Academic Technology for FAS supports XR use.', partnerships: 'HarvardXR conference sponsored by SnapAR, Uber, Microsoft, Meta, Samsung, Pico XR.' } },
+            { name: 'Indiana (IUI)', rating: 4, strengths: ['Widespread Integration'], details: { investments: 'Significant XRI Faculty Fellow grants for 2024/2025 to integrate XR into diverse courses.', facilities: 'IU Indianapolis University Library VR Lab; access to Oculus Quest, MERGE Cube, Google Cardboard.', research: 'XRI supports new courses (e.g., "XR for Social Good," VR Anatomy, pediatric dental AR/VR).', staff: 'Numerous faculty across various schools are XRI grant recipients, actively developing XR curricula.', partnerships: 'XR Initiative is a collaboration among multiple units; sponsors include UITS, Advanced Visualization Lab.' } },
+            { name: 'Johns Hopkins', rating: 4, strengths: ['Creative Arts', 'Applied Research', 'Ethics'], details: { investments: 'XR Collaboration Center sponsors symposium; ongoing research in immersive storytelling and AI.', facilities: 'Applied Physics Laboratory (APL) hosts XR Symposium; Digital Media Center is a multimedia lab.', research: 'MA in Film and Media (Immersive Storytelling); APL conducts XR research; PLAITS conference on AI/immersive tech.', staff: 'Digital Media Center has professional and student staff; APL has XR Collaboration Center.', partnerships: 'APL\'s XR Symposium involves sponsors/collaborators; Connect Tech showcases NVIDIA Jetson modules.' } },
+            { name: 'MIT', rating: 5, strengths: ['Foundational Innovation', 'Global Leadership'], details: { investments: 'MIT.nano Immersion Lab for AR/VR prototyping; Reality Hackathon and related events.', facilities: 'MIT.nano Immersion Lab with AR/VR, high-performance workstations, motion capture.', research: 'Extensive VR/AR research across departments; "How to think like a VR developer" workshop.', staff: 'Talis Reks (AR/VR/Gaming Technologist); Y. Jenny Wang (Lecturer, XR developer); MIT.nano staff.', partnerships: 'MIT.nano Immersion Lab Gaming Program with NCSOFT; Reality Hack involves brand mentors.' } },
+            { name: 'NYU', rating: 4, strengths: ['Centralized Hubs', 'Urban Ecosystem'], details: { investments: 'City-funded RLab; Holodeck project for VR research; ITLab support.', facilities: 'Holodeck for VR research; RLab for VR/AR; ITLab for immersive tech.', research: 'Holodeck fosters VR research; RLab for research/education; ITLab offers VR workshops.', staff: 'Learning Experience Design developers; ITLab staff; Holodeck interdisciplinary team.', partnerships: 'RLab is city-funded; Holodeck links Future Reality Lab, MAGNET.' } },
+            { name: 'Penn State', rating: 4, strengths: ['Pedagogical Transformation', 'Broad Access'], details: { investments: 'Center for Immersive Experiences (CIE) with NSF grants; focus on transforming education.', facilities: 'CIE provides facilities; IMEX Lab for 360 video; VAR Lab with Matchbox, XRcast Studios.', research: 'CIE offers courses/grants; VAR Lab enhances learning, recreates historical venues.', staff: 'CIE is "well-staffed"; VAR Lab and TLT collaborate on XR Catalog.', partnerships: 'National Science Foundation supports industrial engineering simulation; VAR Lab seeks partnerships.' } },
+            { name: 'Princeton', rating: 3, strengths: ['Specialized Applications', 'Public Engagement'], details: { investments: 'Stokes Library VR studio; "Future Presence" VR/spatial sound installation.', facilities: 'Stokes Library VR Studio (Meta Quest 3 headsets); Woolworth Music Building for "Future Presence."', research: 'Science and Global Security Lab\'s nuclear crisis VR simulation (pre-2023); "Future Presence" explores music via VR.', staff: 'Science and Global Security Lab has 9 staff; Stokes Library VR program has dedicated staff.', partnerships: 'Mahler Chamber Orchestra (MCO) partnered for "Future Presence."' } },
+            { name: 'Purdue (IUI)', rating: 4, strengths: ['Scalable Integration', 'Data Visualization'], details: { investments: 'Envision Center\'s Collab XR program for academic XR experiences; VR Lab at Polytechnic Institute.', facilities: 'Envision Center\'s Collab XR platform (Meta Quest 3); Polytechnic Institute\'s VR Lab with state-of-the-art devices.', research: 'Collab XR focuses on scientific 3D data visualization and immersive learning scenarios.', staff: 'Envision Center has a director, technical director, visual solutions engineers; Polytechnic VR Lab has faculty contact.', partnerships: 'Purdue Innovation Hub partners with Envision Center for Collab XR.' } },
+            { name: 'Stanford', rating: 5, strengths: ['Human-Centered Research', 'Industry Shaping'], details: { investments: 'Long-standing Virtual Human Interaction Lab (VHIL); Stanford XR Conference with industry sponsors.', facilities: 'VHIL has dedicated lab space; "Designing for Extended Realities" course provides XR devices.', research: 'VHIL researches psychological/behavioral effects of VR/AR; "Designing for Extended Realities" course.', staff: 'VHIL has founding director, PhD students, visiting scholars; course instructors and industry mentors.', partnerships: 'Stanford XR Conference sponsors include SnapAR, Uber, Microsoft, Meta.' } },
+            { name: 'U of Michigan', rating: 5, strengths: ['Comprehensive Integration', 'Pedagogical Innovation'], details: { investments: 'Innovation Partnerships supports XR; XR Midwest hackathon provides hardware, mentorship.', facilities: 'Duderstadt Center\'s Visualization Studio (M.I.D.E.N., 30+ workstations, various headsets).', research: 'Center for Academic Innovation has 3 dozen XR projects; UMSI Interaction Lab researches AR/VR/MR.', staff: 'Jessi Kittel (XR Project Lead); Ted Hall (XR Visualization Specialist); Michael Nebeling (UMSI Interaction Lab Director).', partnerships: 'XR Midwest partners with Center for Academic Innovation; Innovation Partnerships facilitates commercial advancement.' } },
+            { name: 'Yale', rating: 4, strengths: ['Health Interventions', 'Arts/Science Convergence'], details: { investments: 'Yale Center for Immersive Technologies in Pediatrics; CCAM Studio Fellowship.', facilities: 'XRPeds Lab; Center for Collaborative Arts and Media (CCAM) with motion capture studio.', research: 'XRPeds focuses on health interventions for youth; CCAM investigates art/science/tech intersections.', staff: 'XRPeds has a leadership team and numerous collaborators; CCAM led by Dana Karwas.', partnerships: 'XRPeds supported by Unity Technologies; Blended Reality project with HP (pre-2023).' } }
+        ];
+
+        const trendsData = [
+            { title: 'Shift from Exploratory to Integrated', description: 'In 2020, XR was largely experimental. By 2025, it has become institutionalized with dedicated centers, formalized labs, and university-wide strategic initiatives, making it a core part of academic infrastructure.' },
+            { title: 'Focus on High-Impact Applications', description: 'The focus has matured from general research to specialized, high-impact use cases, particularly in medical training (e.g., surgical simulation), complex data visualization, and addressing societal issues like accessibility and ethics.' },
+            { title: 'The AI-XR Convergence', description: 'A major new trend is the deep integration of Artificial Intelligence with XR. This convergence enables more intelligent, adaptive, and personalized immersive experiences, and is seen as the next frontier for innovation.' },
+            { title: 'Increased Funding & Institutionalization', description: 'Universities are demonstrating a stronger financial commitment through significant internal grants, dedicated funding for centers, and securing major external partnerships, a clear shift from the more ad-hoc, student-led efforts of 2020.' },
+            { title: 'Stronger Industry & External Partnerships', description: 'Collaboration with tech giants and industry leaders has become more common and substantial, with universities serving as key innovation hubs for talent and R&D, and industry providing resources, mentorship, and real-world relevance.' },
+            { title: 'Emphasis on Accessibility & Ethics', description: 'There is a growing, proactive focus on inclusive design and the ethical implications of immersive technologies. Universities are leading discussions on privacy, accessibility, and responsible innovation in the XR space.' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('.nav-button');
+            const sections = {
+                overview: document.getElementById('overview'),
+                profiles: document.getElementById('profiles'),
+                trends: document.getElementById('trends')
+            };
+
+            function switchView(view) {
+                Object.values(sections).forEach(section => section.classList.add('hidden'));
+                navButtons.forEach(btn => btn.classList.remove('active'));
+
+                sections[view].classList.remove('hidden');
+                document.getElementById(`nav-${view}`).classList.add('active');
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const view = button.id.split('-')[1];
+                    switchView(view);
+                });
+            });
+
+            function createCommitmentChart() {
+                const ctx = document.getElementById('commitmentChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: universityData.map(u => u.name),
+                        datasets: [{
+                            label: 'XR Commitment/Investment Rating (1-5)',
+                            data: universityData.map(u => u.rating),
+                            backgroundColor: 'rgba(245, 158, 11, 0.6)', // amber-500
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5,
+                                grid: { color: '#e2e8f0' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: (tooltipItems) => tooltipItems[0].label,
+                                    label: (tooltipItem) => `Rating: ${tooltipItem.raw}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createStrengthsChart() {
+                const strengthsCount = universityData.flatMap(u => u.strengths).reduce((acc, strength) => {
+                    acc[strength] = (acc[strength] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const bubbleData = Object.entries(strengthsCount).map(([strength, count]) => ({
+                    x: Math.random() * 10,
+                    y: Math.random() * 10,
+                    r: count * 8,
+                    label: strength,
+                    count: count
+                }));
+
+                const ctx = document.getElementById('strengthsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: 'Key Strengths',
+                            data: bubbleData,
+                            backgroundColor: 'rgba(202, 138, 4, 0.6)', // yellow-600
+                            borderColor: 'rgba(202, 138, 4, 1)',
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                           y: { display: false },
+                           x: { display: false }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.raw.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += `${context.raw.count} Universit${context.raw.count > 1 ? 'ies' : 'y'}`;
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            async function generateSummary(details, outputElement) {
+                outputElement.innerHTML = '<span class="text-slate-500">Generating summary...</span>';
+                const prompt = `Summarize the following Extended Reality (XR) capabilities of a university in a concise paragraph (maximum 60 words). Focus on their key investments, facilities, research, staff, and partnerships.
+                Investments: ${details.investments}
+                Facilities & Equipment: ${details.facilities}
+                Research & Programs: ${details.research}
+                Dedicated Staff: ${details.staff}
+                Industry Partnerships: ${details.partnerships}`;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputElement.innerHTML = text;
+                    } else {
+                        outputElement.innerHTML = 'Failed to generate summary.';
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    outputElement.innerHTML = 'Error generating summary. Please try again.';
+                }
+            }
+
+            async function generateStrategicInsight(trend, outputElement) {
+                outputElement.innerHTML = '<span class="text-slate-500">Generating insight...</span>';
+                const prompt = `Given the XR trend: '${trend.title}' - '${trend.description}', provide a brief strategic insight or future implication for universities (maximum 80 words). Focus on what universities should consider or how they can leverage this trend.`;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputElement.innerHTML = text;
+                    } else {
+                        outputElement.innerHTML = 'Failed to generate insight.';
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    outputElement.innerHTML = 'Error generating insight. Please try again.';
+                }
+            }
+
+            function populateUniversityProfiles() {
+                const container = document.getElementById('university-profiles-container');
+                universityData.forEach(uni => {
+                    const card = document.createElement('div');
+                    card.className = 'university-card bg-white rounded-lg shadow-md cursor-pointer';
+                    card.innerHTML = `
+                        <div class="p-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-slate-800">${uni.name}</h3>
+                            <span class="text-2xl text-amber-500 transform transition-transform duration-300">&#x25BC;</span>
+                        </div>
+                        <div class="details-section px-4 pb-4 text-slate-600">
+                            <div class="border-t border-slate-200 pt-4 space-y-3">
+                                <p><strong>Investments:</strong> ${uni.details.investments}</p>
+                                <p><strong>Facilities & Equipment:</strong> ${uni.details.facilities}</p>
+                                <p><strong>Research & Programs:</strong> ${uni.details.research}</p>
+                                <p><strong>Dedicated Staff:</strong> ${uni.details.staff}</p>
+                                <p><strong>Industry Partnerships:</strong> ${uni.details.partnerships}</p>
+                                <button class="summarize-btn mt-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200">✨ Summarize Profile</button>
+                                <div class="llm-output mt-2 hidden"></div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+
+                    card.addEventListener('click', (event) => {
+                        // Only toggle details if the click is not on the button
+                        if (!event.target.classList.contains('summarize-btn')) {
+                            const details = card.querySelector('.details-section');
+                            const arrow = card.querySelector('span');
+                            const isOpen = details.classList.toggle('open');
+                            arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                        }
+                    });
+
+                    const summarizeButton = card.querySelector('.summarize-btn');
+                    const llmOutputDiv = card.querySelector('.llm-output');
+                    summarizeButton.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent card from collapsing
+                        llmOutputDiv.classList.remove('hidden');
+                        generateSummary(uni.details, llmOutputDiv);
+                    });
+                });
+            }
+
+            function populateTrends() {
+                const container = document.getElementById('trends-container');
+                trendsData.forEach(trend => {
+                    const item = document.createElement('div');
+                    item.className = 'border-b border-slate-200 pb-2';
+                    item.innerHTML = `
+                        <div class="trend-item flex justify-between items-center p-2 rounded-md hover:bg-slate-100">
+                            <h4 class="text-md font-medium text-slate-700">${trend.title}</h4>
+                             <span class="text-xl text-amber-500 transform transition-transform duration-300">&#x25BC;</span>
+                        </div>
+                        <div class="trend-description text-slate-600 bg-slate-50 rounded-b-md">
+                           <p class="px-4">${trend.description}</p>
+                           <button class="strategic-insight-btn mt-4 ml-4 px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-200">✨ Get Strategic Insight</button>
+                           <div class="llm-output mt-2 ml-4 hidden"></div>
+                        </div>
+                    `;
+                    container.appendChild(item);
+
+                    item.querySelector('.trend-item').addEventListener('click', (event) => {
+                        if (!event.target.classList.contains('strategic-insight-btn')) {
+                            const desc = item.querySelector('.trend-description');
+                            const arrow = item.querySelector('span');
+                            const isOpen = desc.classList.toggle('open');
+                            arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                        }
+                    });
+
+                    const insightButton = item.querySelector('.strategic-insight-btn');
+                    const llmOutputDiv = item.querySelector('.llm-output');
+                    insightButton.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent trend description from collapsing
+                        llmOutputDiv.classList.remove('hidden');
+                        generateStrategicInsight(trend, llmOutputDiv);
+                    });
+                });
+            }
+
+            createCommitmentChart();
+            createStrengthsChart();
+            populateUniversityProfiles();
+            populateTrends();
+        });
+    </script>
+</body>
+</html>
